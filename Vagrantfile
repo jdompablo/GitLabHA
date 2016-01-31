@@ -3,14 +3,26 @@
 
 Vagrant.configure(2) do |config|
 
-  #VirtualBox
-  config.vm.box = "geerlingguy/centos7"
-  config.vm.synced_folder ".", "/vagrant", type: "nfs"
+  config.vm.box = "centos/7"
 
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
-  # config.vm.box_check_update = false
+  #VirtualBox
+  config.vm.provider "virtualbox" do |machine|
+    # Display the VirtualBox GUI when booting the machine
+    #machine.gui = true
+    machine.name = "HA_LB"
+    machine.memory = 1024
+    machine.cpus = 2
+  end
+
+  # Provisioning the machine with ansible
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provision/playbook-01-vms.yml"
+    ansible.host_key_checking = false
+    ansible.sudo = true
+    ansible.tags = ['common', 'nginx']
+  end
+
+  config.vm.network "private_network", ip: "192.168.7.2", virtualbox__intnet: "heartbeat_network"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -37,7 +49,7 @@ Vagrant.configure(2) do |config|
   # Example for VirtualBox:
   #
   # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
+  #
   #   vb.gui = true
   #
   #   # Customize the amount of memory on the VM:
