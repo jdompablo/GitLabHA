@@ -1,0 +1,1 @@
+{"rsync":{"/home/vagrant/sync":{"type":"rsync","guestpath":"/home/vagrant/sync","hostpath":"/Users/javierdompablo/Desktop/GitLabHA","disabled":false,"owner":"vagrant","group":"vagrant"}}}

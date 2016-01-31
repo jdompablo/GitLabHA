@@ -3,15 +3,32 @@
 
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "centos/7"
+  config.vm.define "LoadBalancer1" do |lb1|
+    lb1.vm.box = "centos/7"
+    lb1.vm.host_name = 'loadbalancer1'
+    #VirtualBox
+    lb1.vm.provider "virtualbox" do |machine|
+      # Display the VirtualBox GUI when booting the machine
+      #machine.gui = true
+      machine.name = "HA_LB_1"
+      machine.memory = 512
+      machine.cpus = 2
+    end
+    lb1.vm.network "private_network", ip: "192.168.7.2", virtualbox__intnet: "heartbeat_network"
+  end
 
-  #VirtualBox
-  config.vm.provider "virtualbox" do |machine|
-    # Display the VirtualBox GUI when booting the machine
-    #machine.gui = true
-    machine.name = "HA_LB"
-    machine.memory = 1024
-    machine.cpus = 2
+  config.vm.define "LoadBalancer2" do |lb2|
+    lb2.vm.box = "centos/7"
+    lb2.vm.host_name = 'loadbalancer2'
+    #VirtualBox
+    lb2.vm.provider "virtualbox" do |machine|
+      # Display the VirtualBox GUI when booting the machine
+      #machine.gui = true
+      machine.name = "HA_LB_2"
+      machine.memory = 512
+      machine.cpus = 2
+    end
+    lb2.vm.network "private_network", ip: "192.168.7.3", virtualbox__intnet: "heartbeat_network"
   end
 
   # Provisioning the machine with ansible
@@ -22,7 +39,6 @@ Vagrant.configure(2) do |config|
     ansible.tags = ['common', 'nginx']
   end
 
-  config.vm.network "private_network", ip: "192.168.7.2", virtualbox__intnet: "heartbeat_network"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,

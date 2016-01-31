@@ -1,0 +1,6 @@
+---
+- name: COMMON | Instalar paquetes comunes del SO
+  yum:
+    name={{ item }}
+    state=latest
+  with_items: common_packages
