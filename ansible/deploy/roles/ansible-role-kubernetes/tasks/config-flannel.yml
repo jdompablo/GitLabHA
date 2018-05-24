@@ -1,0 +1,11 @@
+- name: Copy json with network config
+  copy:
+    src: flanneld-conf.json
+    dest: /tmp/flanneld-conf.json
+  register: flannelconf
+
+- name: Configure subnet
+  uri:
+    method: PUT
+    url: "http://localhost:2379/v2/keys/atomic01/network/config"
+    body: "{{ lookup('file', 'flanneld-conf.json') }}"

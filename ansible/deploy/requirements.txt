@@ -1,0 +1,6 @@
+ansible==2.4.4.0
+shade==1.20.0
+ipaddress==1.0.18
+requests==2.18.4
+Jinja2==2.9.6
+lxc-python2==0.1

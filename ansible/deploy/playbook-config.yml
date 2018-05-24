@@ -1,0 +1,24 @@
+- name: INSTALL DOCKER
+  hosts: kubernetes
+  become: yes
+  tags: [docker,kubernetes]
+  roles:
+    -  role: ansible-role-docker
+       tags: [docker]
+       docker_version: "17.06.0~ce-0~ubuntu"
+
+- name: INSTALL KUBERNETES MASTER
+  hosts: kubernetes-master
+  become: yes
+  tags: [kubernetes]
+  roles:
+    -  role: ansible-role-kubernetes
+       kubernetes_node_type: master
+
+# - name: INSTALL KUBERNETES WORKERS
+#   hosts: kubernetes-worker
+#   become: yes
+#   tags: [kubernetes]
+#   roles:
+#     -  role: ansible-role-kubernetes
+#        kubernetes_node_type: worker

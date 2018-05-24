@@ -1,0 +1,27 @@
+---
+- name: Ensure dependencies are installed.
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+
+- name: Intsall linux image dependency
+  shell: apt-get install linux-image-$(uname -r) -y
+
+- name: Add kubernetes apt key.
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    id: 6A030B21BA07F4FB
+    state: present
+  register: add_repository_key
+  ignore_errors: "{{ kubernetes_apt_ignore_key_error }}"
+
+- name: Add kubernetes repository.
+  apt_repository:
+    repo: "{{ kubernetes_apt_repository }}"
+    state: present
+    update_cache: yes

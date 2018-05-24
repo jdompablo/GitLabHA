@@ -1,0 +1,63 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Create docker profile
+      lxd_profile:
+        name: docker2
+        state: present
+        config:
+            raw.lxc:
+              lxc.aa_profile=unconfined
+              lxc.mount.auto=sys:rw
+              lxc.cap.drop=
+            security.nesting: "true"
+            security.privileged: "true"
+            limits.memory.swap: "false"
+            linux.kernel_modules: br_netfilter
+        description: Docker profile to enable privileged
+        devices:
+          aadisable:
+            path: /sys/module/apparmor/parameters/enabled
+            source: /dev/null
+            type: disk
+          aadisable1:
+            path: /sys/module/nf_conntrack/parameters/hashsize
+            source: /dev/null
+            type: disk
+
+    - name: Create kubernetes LXD Container
+      register: lxd_info
+      connection: local
+      become: false
+      lxd_container:
+        name: "{{item}}"
+        state: started
+        source:
+          type: image
+          mode: pull
+          server: https://cloud-images.ubuntu.com/releases
+          protocol: simplestreams
+          alias: 16.04/amd64
+        profiles: ['default', 'docker2']
+        wait_for_ipv4_addresses: true
+        timeout: 600
+      with_items:
+        - "{{groups['kubernetes']}}"
+
+    - set_fact: host="{{ lxd_info.results }}"
+
+    - name: Check if Python2 is installed in container
+      delegate_to: "{{item}}"
+      raw: dpkg -s python
+      register: python_check_is_installed
+      failed_when: python_check_is_installed.rc not in [0,1]
+      changed_when: false
+      with_items:
+        - "{{groups['containers']}}"
+
+    - name: Install Python2 in container
+      delegate_to: "{{item.item}}"
+      raw: apt-get update && apt-get install -y python
+      when: "{{item.rc == 1}}"
+      with_items:
+        - "{{python_check_is_installed.results}}"
