@@ -1,0 +1,5 @@
+127.0.0.1 localhost
+
+{% for node in host %}
+{{ node.addresses.eth0[0] }} {{ item }}
+{% endfor %}

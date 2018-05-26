@@ -1,0 +1,18 @@
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# Source interfaces
+# Please check /etc/network/interfaces.d before changing this file
+# as interfaces may have been defined in /etc/network/interfaces.d
+# See LP: #1262951
+# source /etc/network/interfaces.d/*.cfg
+
+# Assign static ip to container
+auto eth0
+iface eth0 inet static
+address "{{ ansible_host }}"
+network "{{ lxc_network }}"
+broadcast "{{ lxc_broadcast }}"
+gateway "{{ lxc_gateway }}"
+dns-nameservers 8.8.8.8

@@ -1,0 +1,49 @@
+- include_tasks: setup.yml
+
+- name: Install kubernetes (worker)
+  become: yes
+  apt:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - kubeadm
+    - kubelet
+    - kubernetes-cni
+  when: kubernetes_node_type == 'worker'
+
+- name: Install kubernetes (master)
+  become: yes
+  apt:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - kubeadm
+    - kubelet
+    - kubectl
+    - kubernetes-cni
+  when: kubernetes_node_type == 'master'
+
+- name: Install kubernetes (admin)
+  become: yes
+  apt:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - kubelet
+    - kubectl
+    - kubeadm
+    - kubernetes-cni
+  when: kubernetes_node_type == 'admin'
+
+- include_tasks: config-master.yml
+  when: kubernetes_node_type == 'master'
+
+- name: Ensure kubernetes is started and enabled at boot.
+  service:
+    name: kubernetes
+    state: started
+    enabled: yes
+
+- name: Ensure handlers are notified now to avoid firewall conflicts.
+  meta: flush_handlers
+  when: docker_restart_on_package_change
